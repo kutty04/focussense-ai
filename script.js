@@ -10,7 +10,7 @@ let chatHistory = [], flashCards = [], flashIndex = 0, flashFlipped = false;
 let distractionLog = [];
 let audioCtx = null, musicNode = null, currentTrack = 'off';
 
-const API = 'http://127.0.0.1:5000';
+const API = 'https://focussense-ai.onrender.com';
 
 // ===== PERSISTENT DATA =====
 let sessionHistory  = JSON.parse(localStorage.getItem('focusSessions')  || '[]');
