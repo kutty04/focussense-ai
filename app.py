@@ -15,11 +15,11 @@ app = Flask(__name__)
 CORS(app, origins="*", allow_headers=["Content-Type", "Authorization"], methods=["GET", "POST", "OPTIONS"])
 
 
-import os
-from dotenv import python-dotenv
-
+# ✅ CORRECT
+from dotenv import load_dotenv
 load_dotenv()
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
+client = Groq(api_key=GROQ_KEY)
 
 def get_groq_client():
     if GROQ_AVAILABLE and GROQ_KEY and len(GROQ_KEY) > 10:
