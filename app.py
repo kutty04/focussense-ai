@@ -17,10 +17,10 @@ except ImportError:
 app = Flask(__name__)
 CORS(app, origins="*", allow_headers=["Content-Type", "Authorization"], methods=["GET", "POST", "OPTIONS"])
 
+@app.route('/ping')
+def ping():
+    return 'pong', 200
 
-# ✅ CORRECT
-from dotenv import load_dotenv
-load_dotenv()
 GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
 client = Groq(api_key=GROQ_KEY)
 
