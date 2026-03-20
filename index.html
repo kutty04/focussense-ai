@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusSense AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- PAGE 1: HOME -->
+<div id="homePage" class="page active">
+    <div class="home-content">
+        <div class="logo-mark">⬡</div>
+        <h1 class="title">FocusSense <span class="accent">AI</span></h1>
+        <p class="subtitle">Code explainer · Focus tracker · Your study companion</p>
+
+        <!-- Streak + Level on home -->
+        <div class="home-stats-row">
+            <div class="home-stat-chip" id="homeStreakChip">🔥 <span id="homeStreakVal">0</span> day streak</div>
+            <div class="home-stat-chip" id="homeLevelChip">⭐ <span id="homeLevelName">Novice</span></div>
+            <div class="home-stat-chip" id="homeChallengeChip">📋 Daily Challenge</div>
+        </div>
+
+        <!-- XP Bar -->
+        <div class="xp-bar-wrap">
+            <div class="xp-bar-track"><div class="xp-bar-fill" id="homeXpBar" style="width:0%"></div></div>
+            <span class="xp-bar-label" id="homeXpLabel">0 XP</span>
+        </div>
+
+        <!-- Daily Goal Progress -->
+        <div class="goal-wrap" id="homeGoalWrap">
+            <div class="goal-label">Today's Goal: <span id="homeGoalLabel">—</span></div>
+            <div class="goal-track"><div class="goal-fill" id="homeGoalFill" style="width:0%"></div></div>
+            <span class="goal-pct" id="homeGoalPct">0%</span>
+        </div>
+
+        <button class="start-btn" onclick="startApp()">
+            <span>Launch App</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <div class="feature-pills">
+            <span class="pill">🔍 AI Explainer</span><span class="pill">🐛 Bug Detector</span>
+            <span class="pill">📊 Complexity</span><span class="pill">▶️ Dry Run</span>
+            <span class="pill">🎓 Viva Prep</span><span class="pill">🃏 Flashcards</span>
+            <span class="pill">💬 Code Chat</span><span class="pill">⚖️ Compare</span>
+        </div>
+    </div>
+    <div class="home-bg-grid"></div>
+</div>
+
+<!-- PAGE 2: MAIN APP -->
+<div id="appPage" class="page">
+    <div class="top-bar">
+        <div class="app-name">⬡ FocusSense</div>
+        <div class="focus-controls">
+            <button class="ctrl-btn green" onclick="startFocus()" id="startBtn">▶ Start</button>
+            <button class="ctrl-btn yellow" id="pauseBtn" onclick="pauseResumeFocus()" style="display:none">⏸ Pause</button>
+            <button class="ctrl-btn yellow" onclick="markDistracted()">⚡ Distracted</button>
+            <button class="ctrl-btn red" onclick="endFocus()">■ End</button>
+            <button class="ctrl-btn purple" onclick="togglePomodoro()">🍅 Pomo</button>
+        </div>
+        <div class="session-stats">
+            <div class="stat-pill"><span class="stat-label">TIME</span><span id="timer" class="stat-value">00:00</span></div>
+            <div class="stat-pill"><span class="stat-label">SCORE</span><span id="focusScore" class="stat-value">—</span></div>
+            <div class="stat-pill xp-pill"><span class="stat-label">XP</span><span id="xpDisplay" class="stat-value">0</span></div>
+            <div class="stat-pill"><span class="stat-label">🔥</span><span id="streakDisplay" class="stat-value">0</span></div>
+        </div>
+        <div class="top-actions">
+            <button class="icon-btn" onclick="showPage('historyPage')" title="History">📈</button>
+            <button class="icon-btn" onclick="showPage('comparePage')" title="Compare">⚖️</button>
+            <button class="icon-btn" onclick="showPage('snippetsPage')" title="Snippets">💾</button>
+            <button class="icon-btn" onclick="showPage('badgesPage')" title="Badges">🏆</button>
+            <button class="icon-btn" onclick="showPage('goalPage')" title="Daily Goal">🎯</button>
+            <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" title="Theme">🌙</button>
+        </div>
+    </div>
+
+    <!-- Pomodoro Banner -->
+    <div id="pomodoroBanner" class="pomodoro-banner hidden">
+        <span id="pomodoroLabel">🍅 Focus Time</span>
+        <span id="pomodoroTimer" class="pomo-time">25:00</span>
+        <span id="pomoSessionCount" class="pomo-count">1/4</span>
+        <button onclick="stopPomodoro()" class="pomo-stop">✕ Stop</button>
+    </div>
+
+    <!-- Daily Goal Banner -->
+    <div id="goalBanner" class="goal-banner hidden">
+        <span>🎯 Daily Goal:</span>
+        <div class="goal-banner-track"><div class="goal-fill" id="goalBannerFill" style="width:0%"></div></div>
+        <span id="goalBannerLabel">0 / 0 min</span>
+    </div>
+
+    <!-- Music Player -->
+    <div id="musicPlayer" class="music-player hidden">
+        <span class="music-label">🎵</span>
+        <div class="music-tracks">
+            <button class="track-btn active" onclick="playTrack('lofi')">Lo-Fi</button>
+            <button class="track-btn" onclick="playTrack('rain')">Rain</button>
+            <button class="track-btn" onclick="playTrack('white')">White Noise</button>
+            <button class="track-btn" onclick="playTrack('forest')">Forest</button>
+            <button class="track-btn" onclick="playTrack('off')">Off</button>
+        </div>
+        <input type="range" id="musicVolume" min="0" max="100" value="30" oninput="setMusicVolume(this.value)" class="volume-slider">
+        <span class="volume-icon">🔊</span>
+        <button class="pomo-stop" onclick="toggleMusicPlayer()">✕</button>
+    </div>
+
+    <div class="main-container">
+        <div class="panel left-panel">
+            <div class="panel-header">
+                <span class="panel-title">CODE INPUT</span>
+                <span id="langBadge" class="lang-badge hidden">—</span>
+            </div>
+            <textarea id="codeInput" placeholder="// Paste your code here...&#10;// Supports Python, Java, JS, HTML, CSS, SQL & more" spellcheck="false"></textarea>
+            <div class="btn-row">
+                <button class="action-btn primary-btn" onclick="explainCode()">
+                    <span id="submitText">🔍 Explain</span>
+                    <div id="submitLoader" class="btn-spinner hidden"></div>
+                </button>
+                <button class="action-btn bug-btn" onclick="detectErrors()">🐛 Bugs</button>
+                <button class="action-btn cplx-btn" onclick="showComplexity()">📊 Complexity</button>
+                <button class="action-btn dry-btn" onclick="showDryRun()">▶️ Dry Run</button>
+            </div>
+            <div class="snippet-row">
+                <button class="mini-btn" onclick="saveSnippet()">💾 Save Snippet</button>
+                <button class="mini-btn" onclick="clearCode()">🗑️ Clear</button>
+                <button class="mini-btn" onclick="toggleMusicPlayer()">🎵 Music</button>
+            </div>
+        </div>
+        <div class="panel right-panel" id="rightPanel">
+            <div class="panel-header">
+                <span class="panel-title" id="rightPanelTitle">READY</span>
+                <span id="rightPanelBadge" class="lang-badge hidden">—</span>
+            </div>
+            <div id="rightPanelContent">
+                <div class="empty-state">
+                    <div class="empty-icon">🤖</div>
+                    <p>Paste code and choose an action above.</p>
+                    <div class="preview-features">
+                        <div class="preview-feature"><span>🔍</span> Line-by-line AI breakdown</div>
+                        <div class="preview-feature"><span>🐛</span> Bug &amp; error detection</div>
+                        <div class="preview-feature"><span>📊</span> Complexity scoring</div>
+                        <div class="preview-feature"><span>▶️</span> Step-by-step dry run</div>
+                        <div class="preview-feature"><span>🎓</span> Viva prep questions</div>
+                        <div class="preview-feature"><span>🃏</span> Flashcard generator</div>
+                        <div class="preview-feature"><span>💬</span> Chat with your code</div>
+                        <div class="preview-feature"><span>⚖️</span> Compare two snippets</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="assistantBox">
+        <div class="assistant-header"><span class="assistant-dot"></span><span>Assistant</span></div>
+        <p id="assistantText">👋 Welcome! Paste code and choose an action.</p>
+    </div>
+</div>
+
+<!-- PAGE 3: RESULTS -->
+<div id="resultsPage" class="page">
+    <div class="top-bar results-bar">
+        <button class="back-btn" onclick="showPage('appPage')">← Back</button>
+        <div class="results-title-area">
+            <span id="resultLangBadge" class="lang-badge">—</span>
+            <span class="results-page-title">Analysis Report</span>
+            <span id="resultSource" class="source-badge">—</span>
+        </div>
+        <div class="export-buttons">
+            <button class="export-btn pdf-btn" onclick="exportPDF()">📄 PDF</button>
+            <button class="export-btn copy-btn" onclick="copyToClipboard()">📋 Copy</button>
+            <button class="export-btn download-btn" onclick="downloadFile()">⬇️ .txt</button>
+            <button class="export-btn flash-btn" onclick="openFlashcards()">🃏 Flashcards</button>
+            <button class="export-btn chat-open-btn" onclick="openChat()">💬 Chat</button>
+        </div>
+    </div>
+    <div class="results-grid">
+        <div class="result-col">
+            <div class="col-header"><div class="col-icon">🔍</div><div><div class="col-title">Line-by-Line</div><div class="col-subtitle">Code breakdown</div></div></div>
+            <div class="col-body" id="explainColBody"><div class="col-loading"><div class="spinner"></div><span>Analyzing...</span></div></div>
+        </div>
+        <div class="result-col">
+            <div class="col-header"><div class="col-icon">📋</div><div><div class="col-title">Program Overview</div><div class="col-subtitle">What this code does</div></div></div>
+            <div class="col-body" id="overviewColBody"><div class="col-loading"><div class="spinner"></div><span>Summarizing...</span></div></div>
+        </div>
+        <div class="result-col viva-col">
+            <div class="col-header"><div class="col-icon">🎓</div><div><div class="col-title">Viva Questions</div><div class="col-subtitle">What your prof will ask</div></div></div>
+            <div class="col-body" id="vivaColBody"><div class="col-loading"><div class="spinner"></div><span>Preparing questions...</span></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE 4: DRY RUN -->
+<div id="dryRunPage" class="page">
+    <div class="top-bar results-bar">
+        <button class="back-btn" onclick="showPage('appPage')">← Back</button>
+        <span class="results-page-title">▶️ Step-by-Step Execution Trace</span>
+    </div>
+    <div class="dryrun-container">
+        <div class="dryrun-steps-col">
+            <div class="col-header"><div class="col-title">Execution Steps</div><div class="col-subtitle">Variable states at each step</div></div>
+            <div id="dryRunSteps" class="col-body"><div class="col-loading"><div class="spinner"></div><span>Tracing execution...</span></div></div>
+        </div>
+        <div class="dryrun-sidebar">
+            <div class="col-header"><div class="col-title">Final Output</div></div>
+            <pre id="dryRunOutput" class="dryrun-output">—</pre>
+            <div class="col-header" style="margin-top:12px"><div class="col-title">What it computed</div></div>
+            <div id="dryRunSummary" class="overview-section">—</div>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE 5: FLASHCARDS -->
+<div id="flashcardsPage" class="page">
+    <div class="top-bar results-bar">
+        <button class="back-btn" onclick="showPage('resultsPage')">← Back</button>
+        <span class="results-page-title">🃏 Flashcards — Viva Prep</span>
+        <div class="flash-controls">
+            <button class="export-btn copy-btn" onclick="prevCard()">← Prev</button>
+            <span id="flashProgress" class="flash-prog">1 / 8</span>
+            <button class="export-btn download-btn" onclick="nextCard()">Next →</button>
+        </div>
+    </div>
+    <div class="flashcard-arena">
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+            <div class="flashcard-inner" id="flashcardInner">
+                <div class="flashcard-front">
+                    <div class="card-qlabel">QUESTION</div>
+                    <div id="cardFront" class="card-text">—</div>
+                    <div class="card-tap">Tap to reveal answer hint</div>
+                </div>
+                <div class="flashcard-back">
+                    <div class="card-qlabel" style="color:var(--accent)">ANSWER HINT</div>
+                    <div id="cardBack" class="card-text">—</div>
+                    <div class="card-tap">Tap to flip back</div>
+                </div>
+            </div>
+        </div>
+        <div id="flashDiffRow" class="flash-diff-row"></div>
+    </div>
+</div>
+
+<!-- PAGE 6: CHAT -->
+<div id="chatPage" class="page">
+    <div class="top-bar results-bar">
+        <button class="back-btn" onclick="showPage('resultsPage')">← Back</button>
+        <span class="results-page-title">💬 Chat with your Code</span>
+        <button class="export-btn copy-btn" onclick="clearChat()">🗑️ Clear</button>
+    </div>
+    <div class="chat-layout">
+        <div class="chat-code-panel">
+            <div class="col-header"><div class="col-title">Your Code</div></div>
+            <pre id="chatCodePreview" class="chat-code-block"></pre>
+        </div>
+        <div class="chat-main">
+            <div id="chatMessages" class="chat-messages">
+                <div class="chat-msg assistant-msg"><div class="msg-bubble">Hi! Ask me anything about your code 👋</div></div>
+            </div>
+            <div class="chat-suggestions" id="chatSuggestions">
+                <button class="suggest-btn" onclick="askSuggestion(this)">What does this code do?</button>
+                <button class="suggest-btn" onclick="askSuggestion(this)">Explain the main function</button>
+                <button class="suggest-btn" onclick="askSuggestion(this)">What are the inputs and outputs?</button>
+                <button class="suggest-btn" onclick="askSuggestion(this)">Any bugs or improvements?</button>
+            </div>
+            <div class="chat-input-row">
+                <input type="text" id="chatInput" placeholder="Ask a question about your code..." onkeydown="if(event.key==='Enter')sendChat()">
+                <button class="action-btn primary-btn" onclick="sendChat()" style="margin:0;flex-shrink:0">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE 7: COMPARE -->
+<div id="comparePage" class="page">
+    <div class="top-bar results-bar">
+        <button class="back-btn" onclick="showPage('appPage')">← Back</button>
+        <span class="results-page-title">⚖️ Compare Two Snippets</span>
+        <button class="export-btn download-btn" onclick="runCompare()">⚖️ Compare Now</button>
+    </div>
+    <div class="compare-layout">
+        <div class="compare-inputs">
+            <div class="compare-col">
+                <div class="col-header"><div class="col-title">Code 1</div></div>
+                <textarea id="compare1" placeholder="Paste first version here..." class="compare-textarea"></textarea>
+            </div>
+            <div class="compare-col">
+                <div class="col-header"><div class="col-title">Code 2</div></div>
+                <textarea id="compare2" placeholder="Paste second version here..." class="compare-textarea"></textarea>
+            </div>
+        </div>
+        <div id="compareResults" class="compare-results hidden">
+            <div id="compareBody" class="col-body"></div>
+        </div>
+    </div>
+</div>
+
+<!-- PAGE 8: HISTORY -->
+<div id="historyPage" class="page">
+    <div class="top-bar results-bar">
+        <button class="back-btn" onclick="showPage('appPage')">← Back</button>
+        <span class="results-page-title">📈 Focus Session History</span>
+        <button class="export-btn pdf-btn" onclick="clearHistory()">🗑️ Clear</button>
+    </div>
+    <div class="history-layout">
+        <div id="historyStats" class="history-stats"></div>
+        <div class="history-chart-wrap">
+            <div class="heatmap-title">Study Heatmap — Last 7 Weeks</div>
+            <div id="focusHeatmap" class="focus-heatmap"></div>
+        </div>
+        <div class="history-chart-wrap" style="margin-top:0">
+            <canvas id="historyChart"></canvas>
+        </div>
+        <div id="historyList" class="history-list"></div>
+    </div>
+</div>
+
+<!-- PAGE 9: SNIPPETS -->
+<div id="snippetsPage" class="page">
+    <div class="top-bar results-bar">
+        <button class="back-btn" onclick="showPage('appPage')">← Back</button>
+        <span class="results-page-title">💾 Saved Code Snippets</span>
+        <button class="export-btn pdf-btn" onclick="clearSnippets()">🗑️ Clear All</button>
+    </div>
+    <div id="snippetsList" class="snippets-list"></div>
+</div>
+
+<!-- PAGE 10: BADGES -->
+<div id="badgesPage" class="page">
+    <div class="top-bar results-bar">
+        <button class="back-btn" onclick="showPage('appPage')">← Back</button>
+        <span class="results-page-title">🏆 Achievements & Badges</span>
+        <div class="results-title-area">
+            <span class="source-badge" id="levelBadgeDisplay">⭐ Novice</span>
+            <span class="source-badge" id="xpBadgeDisplay">0 XP</span>
+        </div>
+    </div>
+    <div class="badges-layout">
+        <!-- XP + Level -->
+        <div class="level-card">
+            <div class="level-icon" id="levelIcon">🌱</div>
+            <div class="level-info">
+                <div class="level-name" id="levelName">Novice Coder</div>
+                <div class="level-next" id="levelNext">100 XP to next level</div>
+                <div class="xp-bar-track" style="margin-top:8px"><div class="xp-bar-fill" id="xpBarFill" style="width:0%"></div></div>
+                <div class="xp-bar-label" id="xpBarLabel">0 / 100 XP</div>
+            </div>
+        </div>
+        <div id="badgeGrid" class="badge-grid"></div>
+    </div>
+</div>
+
+<!-- PAGE 11: DAILY GOAL -->
+<div id="goalPage" class="page">
+    <div class="top-bar results-bar">
+        <button class="back-btn" onclick="showPage('appPage')">← Back</button>
+        <span class="results-page-title">🎯 Daily Focus Goal</span>
+    </div>
+    <div class="goal-page-layout">
+        <div class="goal-set-card">
+            <div class="col-title" style="margin-bottom:16px">Set Today's Goal</div>
+            <div class="goal-options">
+                <button class="goal-opt-btn" onclick="setGoal(30)">30 min</button>
+                <button class="goal-opt-btn" onclick="setGoal(60)">1 hour</button>
+                <button class="goal-opt-btn" onclick="setGoal(90)">1.5 hrs</button>
+                <button class="goal-opt-btn" onclick="setGoal(120)">2 hours</button>
+                <button class="goal-opt-btn" onclick="setGoal(180)">3 hours</button>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
+                <input type="number" id="customGoalInput" placeholder="Custom (minutes)" class="goal-custom-input" min="1" max="480">
+                <button class="action-btn primary-btn" style="flex:none;padding:8px 16px" onclick="setCustomGoal()">Set</button>
+            </div>
+        </div>
+        <div class="goal-progress-card">
+            <div class="col-title">Today's Progress</div>
+            <div class="goal-big-num" id="goalBigNum">0 min</div>
+            <div class="goal-target" id="goalTarget">of — min goal</div>
+            <div class="goal-track" style="height:16px;margin:16px 0"><div class="goal-fill" id="goalPageFill" style="width:0%"></div></div>
+            <div class="goal-pct" id="goalPagePct" style="font-size:1.5rem">0%</div>
+            <div class="goal-streak-info" id="goalStreakInfo"></div>
+        </div>
+        <div class="daily-challenge-card">
+            <div class="col-title">📋 Daily Challenge</div>
+            <div id="challengeText" class="challenge-text">Loading...</div>
+            <div id="challengeReward" class="challenge-reward"></div>
+            <button class="action-btn primary-btn" style="margin-top:12px" onclick="claimChallenge()" id="claimBtn">Claim Reward</button>
+        </div>
+    </div>
+</div>
+
+<!-- XP Toast -->
+<div id="xpToast" class="xp-toast hidden"></div>
+<!-- Badge Unlock Toast -->
+<div id="badgeToast" class="badge-toast hidden"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
