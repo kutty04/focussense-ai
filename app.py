@@ -251,7 +251,7 @@ Rules: 6-8 viva questions; mix Easy/Medium/Hard; be specific to this exact code.
                 return jsonify(result)
             except Exception as e:
                 print(f"Groq parse failed: {e} — using full regex")
-        return jsonify({**regex_result, "source": "regex-fallback"})
+        return jsonify({**regex_result, "source": "regex-fallback", "error": "Groq API Error - Used Regex Fallback"})
 
     else:
         # Small file: ask Groq for everything
@@ -273,7 +273,7 @@ Rules: include EVERY meaningful line; skip only blank lines and lone braces; 6-8
                 print(f"Groq JSON parse failed: {e}")
 
         print("Using regex fallback")
-        return jsonify({**regex_analyze(code), "source": "regex-fallback"})
+        return jsonify({**regex_analyze(code), "source": "regex-fallback", "error": "Groq API Error - Used Regex Fallback"})
 
 
 @app.route('/analyze-errors', methods=['POST','OPTIONS'])
@@ -388,10 +388,10 @@ IMPORTANT: Return ONLY the JSON object. Nothing before or after it.""",
 
     return jsonify({
         "steps": [
-            {"step": 1, "line": 1, "action": "Groq could not trace this code. Try with shorter code.", "variables": {}, "output": ""}
+            {"step": 1, "line": 1, "action": "Groq API Error: Could not trace this code. Please check your API key.", "variables": {}, "output": ""}
         ],
-        "final_output": "Trace unavailable for this code size.",
-        "summary": "Dry run works best with code under 40 lines. Try pasting just one function.",
+        "final_output": "Trace unavailable due to API error.",
+        "summary": "Groq API request failed. Ensure your API key is valid.",
         "source": "fallback"
     })
 
